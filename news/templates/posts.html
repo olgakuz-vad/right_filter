@@ -1,0 +1,45 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+
+{% block title %}
+Posts
+{% endblock title %}
+
+{% block content %}
+<h1>Все статьи</h1>
+<h3>{{ time_now|date:'M d Y' }}</h3>
+
+<hr>
+   {% if posts %}
+       <table>
+           <tr>
+               <td>Название</td>
+               <td>Текст</td>
+               <td>Категория</td>
+               <td>Дата публикации </td>
+           </tr>
+           <!-- Для каждого товара будете генерироваться новая строчка,
+           т.е. новый HTML код, который указан в теле цикла.
+           При этом сам цикл работает точно так же, как и в Python.
+           product — переменная цикла, т.е. наш товар полученный из списка -->
+           {% for post in posts %}
+           <tr>
+               <!-- Не забываем, что переменные в шаблоне ничем не отличаются
+                от переменных в Python. Здесь также можно получать доступ к
+                полям объекта модели. Например, здесь мы выводим имя,
+                в следующем столбце описание, и т.д.  -->
+               <td>{{ post.title| }}</td>
+               <td>{{ post.text|censor|truncatechars:15 }}</td>
+               <td>{{ post.categoryPost }}</td>
+               <td>{{ post.dateCreate }}</td>
+           </tr>
+           {% endfor %}
+
+       </table>
+<hr>
+   {% else %}
+       <h2>Статей нет!</h2>
+   {% endif %}
+{% endblock content %}
