@@ -17,3 +17,4 @@ def censor(value):
         if word.lower() in STOP_LIST:
             value = value.replace(word, f"{word[0]}{'*' * (len(word) - 1)}")
     return value
+
