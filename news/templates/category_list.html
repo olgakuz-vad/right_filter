@@ -1,0 +1,123 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+{# Импортируем модуль с нашим тегом #}
+{% load custom_tags %}
+
+{% block title %}
+Posts
+{% endblock title %}
+
+{% block content %}
+
+    <!--{% if is_not_subscriber %}
+    <p class="text-center"><a href="{}" class="btn btn-secondary btn-sm">Подписаться</a> </p>
+    {% endif %}-->
+
+<h1>Все статьи</h1>
+<h3>{{ time_now|date:'M d Y' }}</h3>
+
+   {# Добавляем форму, которая объединяет набор полей, которые будут отправляться в запросе #}
+   <form action="" method="get">
+       {# Переменная, которую мы передали через контекст, может сгенерировать нам форму с полями #}
+       {{ filterset.form.as_p }}
+       {# Добавим кнопку отправки данных формы #}
+       <input type="submit" value="Найти" />
+   </form>
+
+<hr>
+
+<!-- Проверка прав пользователей и вывод кнопак если им есть возможность их изменять-->
+
+{% if perms.newspp.add_post %}
+<li class="active"><a href="{% url 'news/create' %}">Добавить новость</a></li>
+<li class="active"><a href="{% url 'articles/create' %}">Добавить статью</a></li>
+{% endif %}
+
+   {% if posts %}
+       <table>
+           <tr>
+               <td>Автор</td>
+               <td>Название</td>
+               <td>Текст</td>
+               <td>Категория</td>
+               <td>Категория поста</td>
+               <td>Дата публикации </td>
+
+   <!-- Проверка прав пользователей и вывод кнопак если им есть возможность их изменять на действия-->
+    {% if perms.newsapp.change_post or perms.newsapp.delete_post %}
+               <td>Действия</td>
+               {% endif %}
+
+           </tr>
+           <!-- Для каждого товара будете генерироваться новая строчка,
+           т.е. новый HTML код, который указан в теле цикла.
+           При этом сам цикл работает точно так же, как и в Python.
+           product — переменная цикла, т.е. наш товар полученный из списка -->
+
+    <ul class="list-group list-group-flush">
+           {% for post in categorysub_list %}
+           <tr>
+               <!-- Не забываем, что переменные в шаблоне ничем не отличаются
+                от переменных в Python. Здесь также можно получать доступ к
+                полям объекта модели. Например, здесь мы выводим имя,
+                в следующем столбце описание, и т.д.  -->
+               <td>{{ post.author}}</td>
+               <td><a href="{% url 'post' post.id %}"> {{ post.title}}</a></td>
+               <td>{{ post.text|censor|truncatechars:15 }}</td>
+               <td>{{ post.categoryPost }}</td>
+               <td>{{ post.postCategory }}
+               <a href="{% url categorysub_list' postCaterory.id %} ">{{ postCategory }}</a>
+               </td>
+               <td>{{ post.dateCreate }}</td>
+
+               <td>
+               <!-- А здесь доступ для каждой ссылки теперь будем проверять отдельно -->
+                {% if perms.newsapp.change_post %}
+                   {% if post.categoryPost == 'News' %}
+                   <li class="active"><a href="{% url 'post_edit' pk=post.id %}">Изменение новости</a></li>
+                    {% else %}
+                   <li class="active"><a href="{% url 'articles_edit' pk=post.id %}">Изменение статьи</a></li>
+                    {% endif %}
+                {% endif %}
+
+                   {% if perms.newsapp.delete_post %}
+                        {% if post.categoryPost == 'News' %}
+                        <li class="active"><a href="{% url 'news/delete' post.id %}"> Удаление новости</a></li>
+                        {% else %}
+                        <li class="active"><a href="{% url 'articles/delete' post.id %}"> Удаление статьи</a></li>
+                        {% endif %}
+                    {% endif %}
+
+               </td>
+
+           </tr>
+           {% endfor %}
+        </ul>
+       </table>
+<hr>
+   {% else %}
+       <h2>Статей нет!</h2>
+   {% endif %}
+  {% if page_obj.has_previous %}
+       {# Для каждой ссылки пагинации указываем обработку через новый тег #}
+       <a href="?{% url_replace page=1 %}">1</a>
+       {% if page_obj.previous_page_number != 1 %}
+           ...
+           <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+       {% endif %}
+   {% endif %}
+
+   {{ page_obj.number }}
+
+   {% if page_obj.has_next %}
+       <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+       {% if paginator.num_pages != page_obj.next_page_number %}
+           ...
+           <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>
+       {% endif %}
+   {% endif %}
+
+
+{% endblock content %}
